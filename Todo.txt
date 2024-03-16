@@ -1,0 +1,45 @@
+#bug
+
+Bugs it workbench is running (not pointstudio or vulcan.... is it only looking for multiple pointstudio instances with a text reach of the application list?)
+
+running just the PS workflow makes a dir in the input folder, then running Agi workflowe spits chips too many dir, need to multithread?
+
+try / catch for all the exports
+
+Pass project name / complete input and export directories to doPhotogrammetry, 
+Remove duplicate finding folder / project name from doPhotogrammetry function and delete get_subfolder_name function
+What a mess of hardcoded folder names, and re-deriving the folder names again and again. ugh
+
+
+#feature
+Process_Scan_with_PythonV2.wfd should be pointed to the right files for current iteration.
+
+multi project support edited files so far:
+Process_Scan_with_PythonV3.wfd 
+Process Pickup_S1_V3.py 
+Process Pickup_S2_V3.py
+writeQACSV_S3.py
+agi_and_PS_process_V3.py (pretty sure this just changes to importing writeQACSV_S3.py to account for topo in topo object name and maybe changed folder location of the topo)
+Also need to make a new .bat to launch agi_and_PS_process_V3.py
+
+
+
+#Multi-thread / deal with multiple input folders
+agi processing - multithreaded. 
+    when windows dir renamed ready, rename to processing then agi process, after processing label complete
+    Make a new project dir in PS for laz and topo for each thread
+
+PS process manaul start, and iterate through all the project dirs in working? 
+
+
+
+comprehensive logging
+
+Account for GCP's
+
+add support for older versions of Agisoft
+
+Option to review pic err values in agisoft after aligning?
+
+
+
