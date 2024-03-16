@@ -41,5 +41,8 @@ add support for older versions of Agisoft
 
 Option to review pic err values in agisoft after aligning?
 
+github test
+
+
 
 
