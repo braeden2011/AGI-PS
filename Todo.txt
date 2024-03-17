@@ -1,19 +1,46 @@
-#bug
 
-Bugs it workbench is running (not pointstudio or vulcan.... is it only looking for multiple pointstudio instances with a text reach of the application list?)
+#To do
 
-running just the PS workflow makes a dir in the input folder, then running Agi workflowe spits chips too many dir, need to multithread?
+Gui inputs (project folder, topo.csv, cal.xml, gcp.csv)
+    Optional: If there is a csv in the project folder auto find topo SH and GCPs and extract into seperate files
+
+Pass paths / data from gui into Agisoft python
+
+Load GCP's into agisoft if avail.
+    If GCP true, align -> save project -> close progect -> then pause for user input to Agisoft
+    Else do Photogrammetry
 
 try / catch for all the exports
 
-Load a config file for each machine specifying base folder paths
-    Import dir
-    Export dir (same as import, maybe subfolder to avoid issues if has to run more than once, then preclude export subfolder from scanning for files?)
+Load a config file for each machine specifying base folder paths? or use gui project folder picker instead?)
+    import dir 
+    Export dir (same as import\export, maybe subfolder to avoid issues if has to run more than once, then preclude export subfolder from scanning for files?)
 Decide how to pass the project name back and forth between Agisoft python <-> PS python <-> PS workflow <-> PS python
 QA to export into the export Dir
 
 
-#feature
+
+
+
+
+
+comprehensive logging
+
+
+
+
+
+
+#bug
+
+Bugs if workbench is running (not pointstudio or vulcan.... is it only looking for multiple pointstudio instances with a text search of the application list?)
+
+running just the PS workflow makes a dir in the input folder, then running Agi workflowe spits chips too many dir, need to multithread?
+
+
+
+
+#Maybe dont multithread like this yet...
 Process_Scan_with_PythonV2.wfd should be pointed to the right files for current iteration.
 
 multi project support edited files so far:
@@ -32,21 +59,3 @@ agi processing - multithreaded.
     Make a new project dir in PS for laz and topo for each thread
 
 PS process manaul start, and iterate through all the project dirs in working? 
-
-
-
-comprehensive logging
-
-Account for GCP's
-
-add support for older versions of Agisoft
-
-Option to review pic err values in agisoft after aligning?
-
-
-
-
-
-git test 1
-test 2 
-
