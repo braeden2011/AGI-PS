@@ -6,9 +6,11 @@ running just the PS workflow makes a dir in the input folder, then running Agi w
 
 try / catch for all the exports
 
-Pass project name / complete input and export directories to doPhotogrammetry, 
-Remove duplicate finding folder / project name from doPhotogrammetry function and delete get_subfolder_name function
-What a mess of hardcoded folder names, and re-deriving the folder names again and again. ugh
+Load a config file for each machine specifying base folder paths
+    Import dir
+    Export dir (same as import, maybe subfolder to avoid issues if has to run more than once, then preclude export subfolder from scanning for files?)
+Decide how to pass the project name back and forth between Agisoft python <-> PS python <-> PS workflow <-> PS python
+QA to export into the export Dir
 
 
 #feature
@@ -41,7 +43,7 @@ add support for older versions of Agisoft
 
 Option to review pic err values in agisoft after aligning?
 
-github test
+
 
 
 
