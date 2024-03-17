@@ -1,18 +1,38 @@
 
 #To do
 
+Handler program
+    call Gui picker
+
+    Call agisoft
+
+    Call PS
+
+
 Gui inputs (project folder, topo.csv, cal.xml, gcp.csv)
     Optional: If there is a csv in the project folder auto find topo SH and GCPs and extract into seperate files
 
 Pass paths / data from gui into Agisoft python
 
+Agi does photogrammetry
+    exports to project folder/Exports
+
+When agi_and_PS_process.py calls PS, it just runs a workflow with hard coded PS path locations to look in.....
+    User input to make sure correct PS DB is open
+        Once imported -> run workflow that looks in hardcoded PS location
+            for each /laz found do stuff.... 
+                if there is a matching topo, use it and QA
+
+
 Load GCP's into agisoft if avail.
     If GCP true, align -> save project -> close progect -> then pause for user input to Agisoft
     Else do Photogrammetry
 
+
+
 try / catch for all the exports
 
-Load a config file for each machine specifying base folder paths? or use gui project folder picker instead?)
+Load a config file for each machine specifying base folder paths? or use gui project folder picker instead?
     import dir 
     Export dir (same as import\export, maybe subfolder to avoid issues if has to run more than once, then preclude export subfolder from scanning for files?)
 Decide how to pass the project name back and forth between Agisoft python <-> PS python <-> PS workflow <-> PS python
