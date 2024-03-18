@@ -8,9 +8,6 @@ import subprocess
 from library.spltCSVByCode import *
 
 
-input_directory = r'D:\AGI IMPORTS'
-export_directory = r'D:\AGISOFT EXPORTS'
-
 #the below breaks if run multiple times, attempt to use previous runs exported images as inputs for next run
 #export_directory = input_directory
 
@@ -103,7 +100,7 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
  """
 
     
-    lazPath = doPhotogrammetry(gcp_csv, projectName, input_directory, output_folder, camera_cal) 
+    lazPath = doPhotogrammetry(gcp_csv, projectName, project_folder, output_folder, camera_cal) 
     #lazPath = str(os.path.join(export_directory, projectName) + "\\" + projectName +".laz")
 
 

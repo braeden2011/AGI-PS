@@ -56,12 +56,11 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
 
 
-    #changed to suing file specified in gui instead of finding the .xml in input_directory / project_folder
+    #changed to using file specified in gui instead of finding the .xml in input_directory / project_folder
     #cameraCalibration = find_files(input_directory, [".xml"])
-    camera_cal
 
 
-    photos = find_files(input_directory, [".jpg", ".jpeg", ".tif", ".tiff"])
+    photos = find_files(input_directory, [".jpg"])
 
     if not photos:
         print("No photos found in input directory. Exiting")
@@ -86,7 +85,8 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
     chunk.addPhotos(photos)
 
-    
+
+
     try:
         doc.save()
     except:
@@ -115,12 +115,13 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
     else:
         print("No camera cal loaded. Proceeding without")
 
-    #load the calibrated sensor to be used with each camera (image) / pulls accuracy data from the photos imported. 
+    #load the calibrated sensor to be used with each camera (image) if cam cal used
     for camera in chunk.cameras:
         if camera_cal:
             camera.sensor = my_sensor
+        #pulls accuracy data for each camera from the photos imported. (residuals) 
         camera.reference.location_accuracy = Metashape.Vector((float(camera.photo.meta['DJI/RtkStdLon']),float(camera.photo.meta['DJI/RtkStdLat']),float(camera.photo.meta['DJI/RtkStdHgt'])))
-        print(camera)
+
 
 
 
@@ -155,7 +156,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
             print("Unable to save project to export directory.")
 
 
-        doc.close()
+        Metashape.Document()
         input("Leave this paused here. Open the Agisoft project and check GCP's loaded. Line up GCP's on pictures. Save project. Close Agisoft. Press Enter")
         input("Are you sure you finished selecting the GCPs and CLOSED the project again?")
         try:
