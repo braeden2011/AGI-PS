@@ -142,6 +142,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         print("Unable to save project to export directory.")
 
     ##??changed to using gcp_csv (a path from the gui, does it work with the if, and the chunk.importReference?)
+    #If using GCP import them, close the project, allow manual selection of GCP in images using the Agisoft program, re-open the project in python
     if gcp_csv:
         print("Attempting to import GCP from: " + gcp_csv)
         chunk.importReference(gcp_csv, delimiter=",", columns="nxyz")
@@ -149,7 +150,16 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
             doc.save()
         except:
             print("Unable to save project to export directory.")
+
+
+        doc.close()
         input("Leave this paused here. Open the Agisoft project and check GCP's loaded. Line up GCP's on pictures. Save project. Close Agisoft. Press Enter")
+        input("Are you sure you finished selecting the GCPs and CLOSED the project again?")
+        try:
+            doc.open(input_directory + "/" + projectName + ".psx")
+        except:
+            print("Unable to open the project after GCPs were selected.")
+        
 
 
 
