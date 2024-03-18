@@ -25,20 +25,24 @@ def progress_print(p):
 def find_files(folder, types):
     file_paths = []
     for root, dirs, files in os.walk(folder):
-        if 'processed' in dirs:
-            dirs.remove('Processed')
+        if 'Exports' in dirs:
+            dirs.remove('Exports')
 
         for entry in files:
             if os.path.splitext(entry)[1].lower() in types:
                 file_paths.append(os.path.join(root, entry))
     return file_paths
 
-def doPhotogrammetry(gcpFlag, input_directory, export_directory): 
 
-    if gcpFlag is not None and isinstance(gcpFlag, str):
-        print("GCP Flag is on.")
+
+def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, camera_cal): 
+
+
+    # fix to work with gcp_csv (a path from gui)
+    if gcp_csv is False:
+        print("GCP Flag is off.")
     else:
-        print("GCP flag is off")
+        print("GCP flag is on. Using GCPs from: " + gcp_csv)
 
 
     # Checking compatibility with Agisoft
@@ -51,31 +55,13 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
 
 
 
-    #get the name of the single project folder allowed in D:\AGI IMPORTS'
-    try:
-        projectName = get_subfolder_name(input_directory)
-        print(f"Project name: {projectName}")
-    except FileNotFoundError as e:
-        print("Import folder not found. Looking for: " + input_directory)
-        input()
-        exit()
+
+    #changed to suing file specified in gui instead of finding the .xml in input_directory / project_folder
+    #cameraCalibration = find_files(input_directory, [".xml"])
+    camera_cal
 
 
-    #get the names of the input and export folders to be used based on the projectName derived from the input folder
-    try:
-        image_folder = os.path.join(input_directory, projectName)
-        output_folder = os.path.join(image_folder, "Processed")
-    except NameError as e:
-        print("Import or Export folder not found. D:\AGI IMPORTS and D:\AGISOFT EXPORTS.")
-        input()
-        exit()
-
-
-
-    cameraCalibration = find_files(image_folder, [".xml"])
-
-
-    photos = find_files(image_folder, [".jpg", ".jpeg", ".tif", ".tiff"])
+    photos = find_files(input_directory, [".jpg", ".jpeg", ".tif", ".tiff"])
 
     if not photos:
         print("No photos found in input directory. Exiting")
@@ -85,11 +71,11 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
     doc = Metashape.Document()
 
 
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    if not os.path.exists(export_directory):
+        os.makedirs(export_directory)
 
     try:
-        doc.save(output_folder + '/' + projectName + '.psx')
+        doc.save(input_directory + '/' + projectName + '.psx')
     except:
         print("Unable to save project to export directory, do you have the project open?")
         input()
@@ -106,7 +92,8 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
     except:
         print("Unable to save project to export directory.")
 
-    Metashape.CoordinateSystem.addGeoid(input_directory + "\\AUSGeoid09.tif" )
+
+    Metashape.CoordinateSystem.addGeoid("C:\Program Files\Agisoft\Metashape Pro\geoids\AUSGeoid09.tif" )
 
     coordinateSystem = "COMPD_CS[\"CCMP + Geoid09\",PROJCS[\"GDA94 / MGA zone 55\",GEOGCS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6283\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9102\"]],AUTHORITY[\"EPSG\",\"4283\"]],PROJECTION[\"Transverse_Mercator\",AUTHORITY[\"EPSG\",\"9807\"]],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",147],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",10000000],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"28355\"]],VERT_CS[\"AHD height\",VERT_DATUM[\"Australian Height Datum\",2005,AUTHORITY[\"EPSG\",\"5111\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"5711\"]]]"
 
@@ -120,7 +107,7 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
         my_calib = Metashape.Calibration()
         my_calib.width = my_sensor.width
         my_calib.height = my_sensor.height
-        my_calib.load(str(cameraCalibration[0]), format=Metashape.CalibrationFormatXML)
+        my_calib.load(str(camera_cal[0]), format=Metashape.CalibrationFormatXML)
         my_sensor.user_calib = my_calib
     except IndexError as e:
             print("Problem loading camera calibration .xml from project folder, press enter to continue anyway")
@@ -154,10 +141,10 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
     except:
         print("Unable to save project to export directory.")
 
-    ##Do GCP here. Doesnt work yet
-    if gcpFlag:
-        print("Attempting to import GCP from: " + gcpFlag)
-        chunk.importReference(gcpFlag, delimiter=",", columns="nxyz")
+    ##??changed to using gcp_csv (a path from the gui, does it work with the if, and the chunk.importReference?)
+    if gcp_csv:
+        print("Attempting to import GCP from: " + gcp_csv)
+        chunk.importReference(gcp_csv, delimiter=",", columns="nxyz")
         try:
             doc.save()
         except:
@@ -184,11 +171,11 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
 
 
     if chunk.point_cloud:
-        chunk.exportPointCloud(output_folder + '/' + projectName + '.laz', crs = Metashape.CoordinateSystem(coordinateSystem), format = Metashape.PointCloudFormatLAZ, source_data = Metashape.PointCloudData)
+        chunk.exportPointCloud(export_directory + '/' + projectName + '.laz', crs = Metashape.CoordinateSystem(coordinateSystem), format = Metashape.PointCloudFormatLAZ, source_data = Metashape.PointCloudData)
 
     #check for .laz output
-    if os.path.isfile(output_folder + "\\" + projectName +".laz"):
-        print("Pointcloud has been exported to: " + output_folder + "\\" + projectName + ".laz")
+    if os.path.isfile(export_directory + "\\" + projectName +".laz"):
+        print("Pointcloud has been exported to: " + export_directory + "\\" + projectName + ".laz")
     else:
         print("Something went wrong. No Pointcloud for you!")
 
@@ -207,7 +194,7 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
 
 
     if chunk.elevation:
-        chunk.exportRaster(output_folder + '/' + projectName + ' DEM.tif', source_data = Metashape.ElevationData,projection = d_projection)
+        chunk.exportRaster(export_directory + '/' + projectName + ' DEM.tif', source_data = Metashape.ElevationData,projection = d_projection)
 
 
     chunk.buildOrthomosaic(progress = progress_print, surface_data=Metashape.ElevationData, blending_mode=Metashape.MosaicBlending, resolution=0.1)
@@ -218,13 +205,13 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
         print("Unable to save project to export directory. Press enter to continue.")
         input()
 
-    chunk.exportRaster(output_folder + '/' + projectName + ' 10cm.tiff', projection = d_projection, source_data = Metashape.OrthomosaicData)
-    chunk.exportRaster(output_folder + '/' + projectName + ' 10cm.jpg', source_data = Metashape.OrthomosaicData, projection = d_projection,  resolution=0.1, save_world=True)
+    chunk.exportRaster(export_directory + '/' + projectName + ' 10cm.tiff', projection = d_projection, source_data = Metashape.OrthomosaicData)
+    chunk.exportRaster(export_directory + '/' + projectName + ' 10cm.jpg', source_data = Metashape.OrthomosaicData, projection = d_projection,  resolution=0.1, save_world=True)
     chunk.exportRaster("V:/11 - Vulcan/06_Survey/02 Site Imagery/2024/" + projectName + ' 50cm.jpg', source_data = Metashape.OrthomosaicData, projection = d_projection, resolution=0.5, save_world=True) 
 
 
 
-    chunk.exportReport(output_folder + '/' + projectName + '.pdf')
+    chunk.exportReport(export_directory + '/' + projectName + '.pdf')
 
     try:
         doc.save()
@@ -234,4 +221,4 @@ def doPhotogrammetry(gcpFlag, input_directory, export_directory):
 
 
 
-    return str(output_folder + "\\" + projectName +".laz")
+    return str(export_directory + "\\" + projectName +".laz")

@@ -17,7 +17,7 @@ export_directory = r'D:\AGISOFT EXPORTS'
 
 def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
         
-    #Get the name of the project based on the project folder selected
+    #Get the name of the project based on the project folder selected in the gui
     try:
         input_folder, projectName =  os.path.split(project_folder)
         print(f"Project name: {projectName}")
@@ -27,13 +27,10 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
         input()
         exit()
 
-    input()
 
-
-    #get the names of the input and export folders to be used based on the projectName derived from the input folder
+    #set output folder to a subfolder of the project folder called "Exports" 
     try:
-        image_folder = os.path.join(input_directory, projectName)
-        output_folder = os.path.join(export_directory, projectName)
+        output_folder = os.path.join(project_folder, "Exports")
     except NameError as e:
         print("Import or Export folder not found. D:\AGI IMPORTS and D:\AGISOFT EXPORTS.")
         input()
@@ -41,10 +38,9 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
 
 
 
-
-    # Get the list of files in the project input directory to check for topo and gcp CSV's
+    ###This is all nice to have stuff for splitting a single CSV into SH and GCP files. maybe later do in the GUI?
+    """ # Get the list of files in the project input directory to check for topo and gcp CSV's
     files = [f for f in os.listdir(os.path.join(input_directory, projectName)) if os.path.isfile(os.path.join(os.path.join(input_directory, projectName), f))]
-
 
     #check for CSVs
     #csv_files = [f for f in files if f.lower() != 'gcp.csv'.lower() and f.endswith('.csv')]
@@ -59,8 +55,8 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
         print("No GCP.csv found. Checking topo CSV for GCPs")
         print("CSV topo path: " + csvPath)
         #filter topo csv for GCP's and write to GCP.csv
-        filter_and_write_csv(csvPath, image_folder, "GCP", ['gcp', 'pgcp', 'GCP', 'PGCP'], 4)
-        filter_and_write_csv(csvPath, image_folder, projectName + " topo", ['sh', 'SH', 'PSHT', 'psht'], 4)
+        filter_and_write_csv(csvPath, project_folder, "GCP", ['gcp', 'pgcp', 'GCP', 'PGCP'], 4)
+        filter_and_write_csv(csvPath, project_folder, projectName + " topo", ['sh', 'SH', 'PSHT', 'psht'], 4)
         topoCSVPath = os.path.join(input_directory, projectName, projectName + " topo.csv")
         files = [f for f in os.listdir(os.path.join(input_directory, projectName)) if os.path.isfile(os.path.join(os.path.join(input_directory, projectName), f))]
         gcp_file = next((f for f in files if f.lower().endswith('gcp.csv')), None)
@@ -82,7 +78,7 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
     #checks if there are 2 CSVs, and one ends in gcp.csv
     elif len(csv_files) == 2 and any(file.lower().endswith('gcp.csv') for file in csv_files):
         csvPath = os.path.join(input_directory ,projectName, next(f for f in csv_files if not f.lower().endswith('gcp.csv')))
-        filter_and_write_csv(csvPath, image_folder, projectName + " topo", ['sh', 'SH', 'PSHT', 'psht'], 4)
+        filter_and_write_csv(csvPath, project_folder, projectName + " topo", ['sh', 'SH', 'PSHT', 'psht'], 4)
         topoCSVPath = os.path.join(input_directory, projectName, projectName + " topo.csv")
         gcp_file = next((f for f in files if f.lower().endswith('gcp.csv')), None)
         print("GCP.csv found.")
@@ -104,10 +100,10 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
         print("Too many CSVs in input folder. Press enter to continue without topo for QA or GCP.")
         gcpPath = False
         input()
+ """
 
-
-    #change to passing GCP flag, not gcp path in case they dont want to use GCP split out of topt CSV
-    lazPath = doPhotogrammetry(gcpPath, input_directory, export_directory) 
+    
+    lazPath = doPhotogrammetry(gcp_csv, projectName, input_directory, output_folder) 
     #lazPath = str(os.path.join(export_directory, projectName) + "\\" + projectName +".laz")
 
 
@@ -138,7 +134,7 @@ def agisoft_do_photogrammetry(project_folder, topo_csv, camera_cal, gcp_csv):
 
 
     try:
-        import_csv(project, topoCSVPath, PS_topo_Path)
+        import_csv(project, topo_csv, PS_topo_Path)
     except:
         print("CSV failed to import into PaintStudio")
         
