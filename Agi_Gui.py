@@ -79,8 +79,9 @@ class Application(tk.Tk):
             self.gcp_csv_entry.insert(0, gcp_csv_path)
 
     def do_photogrammetry(self):
-        self.quit()
         agisoft_do_photogrammetry(app.project_folder, app.topo_csv, app.camera_cal, app.gcp_csv)
+        self.quit()
+
         pass
 
     def create_widgets(self):
@@ -135,8 +136,4 @@ app = Application()
 # Start the main event loop
 app.mainloop()
 
-# Access the variables outside the class
-print(app.project_folder)
-print(app.topo_csv)
-print(app.camera_cal)
-print(app.gcp_csv)
+

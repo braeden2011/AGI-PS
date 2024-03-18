@@ -46,7 +46,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
 
     # Checking compatibility with Agisoft
-    compatible_major_version = "2.0"
+    compatible_major_version = "2.1"
     found_major_version = ".".join(Metashape.app.version.split('.')[:2])
     if found_major_version != compatible_major_version:
         raise Exception("Incompatible Metashape version: {} != {}".format(found_major_version, compatible_major_version))
@@ -99,23 +99,26 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
 
 
-
+    if camera_cal:
     #load camera calibration .xml from image_folder
-    try:
-        my_sensor = chunk.sensors[0]
-        my_sensor.type = Metashape.Sensor.Type.Frame
-        my_calib = Metashape.Calibration()
-        my_calib.width = my_sensor.width
-        my_calib.height = my_sensor.height
-        my_calib.load(str(camera_cal[0]), format=Metashape.CalibrationFormatXML)
-        my_sensor.user_calib = my_calib
-    except IndexError as e:
-            print("Problem loading camera calibration .xml from project folder, press enter to continue anyway")
-            input()
+        try:
+            my_sensor = chunk.sensors[0]
+            my_sensor.type = Metashape.Sensor.Type.Frame
+            my_calib = Metashape.Calibration()
+            my_calib.width = my_sensor.width
+            my_calib.height = my_sensor.height
+            my_calib.load(str(camera_cal), format=Metashape.CalibrationFormatXML)
+            my_sensor.user_calib = my_calib
+        except IndexError as e:
+                print("Problem loading camera calibration .xml from project folder, press enter to continue anyway")
+                input()
+    else:
+        print("No camera cal loaded. Proceeding without")
 
     #load the calibrated sensor to be used with each camera (image) / pulls accuracy data from the photos imported. 
     for camera in chunk.cameras:
-        camera.sensor = my_sensor
+        if camera_cal:
+            camera.sensor = my_sensor
         camera.reference.location_accuracy = Metashape.Vector((float(camera.photo.meta['DJI/RtkStdLon']),float(camera.photo.meta['DJI/RtkStdLat']),float(camera.photo.meta['DJI/RtkStdHgt'])))
         print(camera)
 
