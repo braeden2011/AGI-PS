@@ -149,7 +149,8 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
     #If using GCP import them, close the project, allow manual selection of GCP in images using the Agisoft program, re-open the project in python
     if gcp_csv:
         print("Attempting to import GCP from: " + gcp_csv)
-        chunk.importReference(gcp_csv, delimiter=",", columns="nxyz")
+        chunk.importReference(gcp_csv,  format = Metashape.ReferenceFormatCSV, delimiter=",", columns="nxyz")
+
         try:
             doc.save()
         except:

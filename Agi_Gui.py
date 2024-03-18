@@ -6,7 +6,7 @@ from agi_and_PS_process import  agisoft_do_photogrammetry
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("File Count")
+        self.title("Agisoft and Pointstudio Helper")
         
         self.project_folder = None
         self.topo_csv = None
