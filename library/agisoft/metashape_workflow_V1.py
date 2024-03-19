@@ -67,7 +67,11 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         input()
         exit()
 
+ 
     doc = Metashape.Document()
+
+    #testing for open / close project. Didnt work.
+    #doc =  Metashape.app.document
 
 
     if not os.path.exists(export_directory):
@@ -119,7 +123,8 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
     for camera in chunk.cameras:
         if camera_cal:
             camera.sensor = my_sensor
-        #pulls accuracy data for each camera from the photos imported. (residuals) 
+        #pulls accuracy data for each camera from the photos imported. (residuals)
+        ##Needs a try catch 
         camera.reference.location_accuracy = Metashape.Vector((float(camera.photo.meta['DJI/RtkStdLon']),float(camera.photo.meta['DJI/RtkStdLat']),float(camera.photo.meta['DJI/RtkStdHgt'])))
 
 
@@ -145,28 +150,48 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
     except:
         print("Unable to save project to export directory.")
 
+
     ##??changed to using gcp_csv (a path from the gui, does it work with the if, and the chunk.importReference?)
     #If using GCP import them, close the project, allow manual selection of GCP in images using the Agisoft program, re-open the project in python
     if gcp_csv:
         print("Attempting to import GCP from: " + gcp_csv)
-        chunk.importReference(gcp_csv,  format = Metashape.ReferenceFormatCSV, delimiter=",", columns="nxyz")
+        #adding crs = Metashape.CoordinateSystem(coordinateSystem) argument causes it to change whole project to GDA94/Z55, we want pics / cameras in WGS84 and markers in GDA94/Z55
+        #for now, users to open the References pane settings and set themselves before lining up GCP
+        chunk.importReference(gcp_csv, delimiter=",", columns="nxyz", create_markers = True, items = Metashape.ReferenceItemsMarkers)
 
         try:
             doc.save()
         except:
             print("Unable to save project to export directory.")
+            
+        #to allow editing in GUI / remove the lockfile.
+        doc.read_only = False
+        doc = Metashape.app.document
 
+        #this is failing to then open the saved project. all subsequent saves fail.
+        #doc.open(os.path.join(input_directory, projectName + '.psx'), read_only=False)
 
-        Metashape.Document()
         input("Leave this paused here. Open the Agisoft project and check GCP's loaded. Line up GCP's on pictures. Save project. Close Agisoft. Press Enter")
-        input("Are you sure you finished selecting the GCPs and CLOSED the project again?")
+        input("Are you sure you finished selecting the GCPs, saved and CLOSED the project again?")
+
+        # #this fails to open. Do I even need to re-open. Can I just save over it? No. still fails to save
+        # try:
+        #     print("Path im trying to open: " + os.path.join(input_directory, projectName + '.psx'))
+        #     doc.open(os.path.join(input_directory, projectName + '.psx'))
+        #     input()
+        # except:
+        #     print("Unable to open the project after GCPs were selected.")
+
         try:
-            doc.open(input_directory + "/" + projectName + ".psx")
+            doc.save()
+
         except:
-            print("Unable to open the project after GCPs were selected.")
+            print("Unable to save project to export directory.")
         
+    if gcp_csv:
+        chunk.optimizeCameras(progress = progress_print, fit_f=True, fit_cx=True, fit_cy=True, fit_b1=False, fit_b2=False, fit_k1=True, fit_k2=True, fit_k3=True, fit_k4=False, fit_p1=True, fit_p2=True, fit_corrections=False, adaptive_fitting=True, tiepoint_covariance=False)
 
-
+    #Do we want to pause here and let peopel check error values?
 
     chunk.buildDepthMaps(progress = progress_print, downscale = 8, filter_mode = Metashape.NoFiltering)
 

@@ -1,10 +1,12 @@
 
 #To do
 
-Load GCP's into agisoft if avail.
-    If GCP true, align -> save project -> close progect -> then pause for user input to Agisoft
-    Else do Photogrammetry
+Need try / catch for: 
+    loading photos?
+    laoding camera cal for each camera / photo
+    loading residuals /  accuracies for each camera / photo
 
+Fails to save after opening the project in GUI for GCP picking
 
 Gui inputs (project folder, topo.csv, cal.xml, gcp.csv)
     Optional: If there is a csv in the project folder auto find topo SH and GCPs and extract into seperate files
