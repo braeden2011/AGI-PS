@@ -193,6 +193,8 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         except:
             print("Unable to save project to export directory.")
         
+        input()
+        
     if gcp_csv:
         chunk.optimizeCameras(progress = progress_print, fit_f=True, fit_cx=True, fit_cy=True, fit_b1=False, fit_b2=False, fit_k1=True, fit_k2=True, fit_k3=True, fit_k4=False, fit_p1=True, fit_p2=True, fit_corrections=False, adaptive_fitting=True, tiepoint_covariance=False)
 
