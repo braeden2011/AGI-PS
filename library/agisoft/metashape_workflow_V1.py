@@ -1,6 +1,7 @@
 #Generic pointcloud creation using Agisoft, by Breaden King 19/01/24
-#input taken: A single folder called the flight name in  D:\AGI IMPORTS' (only one fodler allowed in D:\AGI IMPORTS' currently)
-#inside the folder there should be a  topo.csv (format: point ID, x, y, z), the camera calibration .XML, and the photos to be used. Photos in subfolders are ok.
+#inputs(file / folder paths): gcp_csv, input_directory, export_directory, camera_cal
+#inputs cont.: projectName
+#inside the input_directory there should be .jpgs to process, in subfolders is ok.
 
 import Metashape
 import os, sys, time
@@ -21,7 +22,7 @@ def progress_print(p):
         print('Current task progress: {:.2f}%'.format(p))
 
 
-#Iterate through all subfolders of folder and return all files of type
+#Iterate through all subfolders of folder and return all files of types
 def find_files(folder, types):
     file_paths = []
     for root, dirs, files in os.walk(folder):
@@ -37,8 +38,6 @@ def find_files(folder, types):
 
 def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, camera_cal): 
 
-
-    # fix to work with gcp_csv (a path from gui)
     if gcp_csv is False:
         print("GCP Flag is off.")
     else:
@@ -70,10 +69,6 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
  
     doc = Metashape.Document()
 
-    #testing for open / close project. Didnt work.
-    #doc =  Metashape.app.document
-
-
     if not os.path.exists(export_directory):
         os.makedirs(export_directory)
 
@@ -98,13 +93,15 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
 
     Metashape.CoordinateSystem.addGeoid("C:\Program Files\Agisoft\Metashape Pro\geoids\AUSGeoid09.tif" )
-
+    #I should maaaybe do 
+    #coordinateSystem = Metashape.CoordinateSystem("COMPD_CS[\"CCMP + Geoid09\",PROJCS[\"GDA94 / MGA zone 55\",GEOGCS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6283\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9102\"]],AUTHORITY[\"EPSG\",\"4283\"]],PROJECTION[\"Transverse_Mercator\",AUTHORITY[\"EPSG\",\"9807\"]],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",147],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",10000000],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"28355\"]],VERT_CS[\"AHD height\",VERT_DATUM[\"Australian Height Datum\",2005,AUTHORITY[\"EPSG\",\"5111\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"5711\"]]]")
+    #then replace crs = Metashape.CoordinateSystem(coordinateSystem)
+    #in all the exports etc?
     coordinateSystem = "COMPD_CS[\"CCMP + Geoid09\",PROJCS[\"GDA94 / MGA zone 55\",GEOGCS[\"GDA94\",DATUM[\"Geocentric Datum of Australia 1994\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6283\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9102\"]],AUTHORITY[\"EPSG\",\"4283\"]],PROJECTION[\"Transverse_Mercator\",AUTHORITY[\"EPSG\",\"9807\"]],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",147],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",10000000],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"28355\"]],VERT_CS[\"AHD height\",VERT_DATUM[\"Australian Height Datum\",2005,AUTHORITY[\"EPSG\",\"5111\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"5711\"]]]"
 
 
-
+    #load camera cal if provided
     if camera_cal:
-    #load camera calibration .xml from image_folder
         try:
             my_sensor = chunk.sensors[0]
             my_sensor.type = Metashape.Sensor.Type.Frame
@@ -119,7 +116,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
     else:
         print("No camera cal loaded. Proceeding without")
 
-    #load the calibrated sensor to be used with each camera (image) if cam cal used
+    #load the calibrated sensor to be used with each image if cam cal used
     for camera in chunk.cameras:
         if camera_cal:
             camera.sensor = my_sensor
@@ -151,13 +148,22 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         print("Unable to save project to export directory.")
 
 
-    ##??changed to using gcp_csv (a path from the gui, does it work with the if, and the chunk.importReference?)
-    #If using GCP import them, close the project, allow manual selection of GCP in images using the Agisoft program, re-open the project in python
+
+    #If using GCP, import them, make project writtable, allow manual selection of GCP in images using the Agisoft program, re-open the project in python
     if gcp_csv:
         print("Attempting to import GCP from: " + gcp_csv)
         #adding crs = Metashape.CoordinateSystem(coordinateSystem) argument causes it to change whole project to GDA94/Z55, we want pics / cameras in WGS84 and markers in GDA94/Z55
-        #for now, users to open the References pane settings and set themselves before lining up GCP
+
         chunk.importReference(gcp_csv, delimiter=",", columns="nxyz", create_markers = True, items = Metashape.ReferenceItemsMarkers)
+
+        #for now, users to open the References pane settings and set themselves before lining up GCP
+        #maybe able to use to set marker / GCP coords to GDA94/Z55 while leaving chunk / cameras alone? code from 2018
+        #alternatively, set crs argument chunk.importReference to crs = Metashape.CoordinateSystem(coordinateSystem), the set the chunk / cameras back to WGS84 after?
+        #change coord system for GCP from chunk.crs(WGS84) to (GDA94/Z55)
+
+        for marker in chunk.markers:
+            if marker.reference.location:
+                marker.reference.location = Metashape.CoordinateSystem.transform(marker.reference.location, chunk.crs, Metashape.CoordinateSystem(coordinateSystem))
 
         try:
             doc.save()
@@ -169,9 +175,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         doc = Metashape.app.document
 
         #setting read only off, then ommitting next line? will that let me save again after GCP?
-        #doc = Metashape.app.document
         #this is failing to then open the saved project. all subsequent saves fail.
-        #doc.open(os.path.join(input_directory, projectName + '.psx'), read_only=False)
 
         input("Leave this paused here. Open the Agisoft project and check GCP's loaded. Line up GCP's on pictures. Save project. Close Agisoft. Press Enter")
         input("Are you sure you finished selecting the GCPs, saved and CLOSED the project again?")
@@ -185,7 +189,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
         #     print("Unable to open the project after GCPs were selected.")
 
         #Leave the project open in Agisoft after picking GCP until after this next bit runs and saves at least once?
-        doc = Metashape.app.document #currently opened document in actual Metashape window
+        doc = Metashape.app.document #gets currently opened document in actual Metashape window
         #lets try print(str(doc))
         doc.open(projectName)
 

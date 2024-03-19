@@ -8,6 +8,8 @@ Need try / catch for:
 
 Fails to save after opening the project in GUI for GCP picking
 
+Need to put agisoft settings into a YAML config file
+
 Gui inputs (project folder, topo.csv, cal.xml, gcp.csv)
     Optional: If there is a csv in the project folder auto find topo SH and GCPs and extract into seperate files
 
