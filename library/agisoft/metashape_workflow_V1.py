@@ -166,6 +166,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
             
         #to allow editing in GUI / remove the lockfile.
         doc.read_only = False
+        doc = Metashape.app.document
 
         #setting read only off, then ommitting next line? will that let me save again after GCP?
         #doc = Metashape.app.document
@@ -185,6 +186,7 @@ def doPhotogrammetry(gcp_csv, projectName, input_directory, export_directory, ca
 
         #Leave the project open in Agisoft after picking GCP until after this next bit runs and saves at least once?
         doc = Metashape.app.document #currently opened document in actual Metashape window
+        #lets try print(str(doc))
         doc.open(projectName)
 
         try:
