@@ -11,7 +11,7 @@ Fails to save after opening the project in GUI for GCP picking
 Gui inputs (project folder, topo.csv, cal.xml, gcp.csv)
     Optional: If there is a csv in the project folder auto find topo SH and GCPs and extract into seperate files
 
-
+Python project Save after GCP picking doesnt work
 
 
 
