@@ -35,8 +35,8 @@ project.delete("cad/offset of croppingPoly")
 
 
 #add an input connector and give it the scan?
-
-inputScan = project.find_object(parser["scanPoints"])
+for oid in parser["scanPoints"]:
+    inputScan = project.find_object(oid)
 newScanName = inputScan.path.split("/")[-1]
 
 
