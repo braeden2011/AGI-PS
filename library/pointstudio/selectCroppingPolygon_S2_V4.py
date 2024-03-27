@@ -36,11 +36,11 @@ project.delete("cad/offset of croppingPoly")
 
 #add an input connector and give it the scan?
 for oid in parser["scanPoints"]:
-    inputScan = project.find_object(oid)
-newScanName = inputScan.path.split("/")[-1]
+        newScanName = oid.path.split("/")[-1]
 
 
 bdyPolygonPath = "cad/boundary of " + newScanName
+
 
 boundaryPolygon = project.find_object(bdyPolygonPath)
 
@@ -51,5 +51,5 @@ else:
     boundaryPolygon = project.find_object("cad/boundaries of " + newScanName + "/boundary 1")
     write_report("filtered bdy path", boundaryPolygon.path)
 
-project.find_object(parser["scanPoints"])
-parser.set_output("output", [boundaryPolygon])
+parser.set_output("polygon", [boundaryPolygon])
+
